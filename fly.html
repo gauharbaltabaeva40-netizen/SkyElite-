@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyElite — Жеке Ұшақтар</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            overflow-x: hidden;
+        }
+
+        /* ─── Video Container ─── */
+        .video-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: #0f0f1a;
+        }
+        .video-container .fallback-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 15, 26, 0.85) 0%, rgba(30, 30, 60, 0.70) 100%);
+            z-index: 0;
+        }
+        .hero-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.30);
+            z-index: 1;
+        }
+
+        /* ─── Heading Overlap ─── */
+        .heading-overlap {
+            margin-top: -12px;
+        }
+        @media (min-width: 768px) {
+            .heading-overlap {
+                margin-top: -14px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .heading-overlap {
+                margin-top: -16px;
+            }
+        }
+
+        /* ─── Mobile Menu ─── */
+        .menu-dropdown {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .animate-fade-up {
+            opacity: 0;
+            animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .animate-fade-in {
+            opacity: 0;
+            animation: fadeIn 1.2s ease forwards;
+        }
+
+        .delay-100 {
+            animation-delay: 0.10s;
+        }
+        .delay-200 {
+            animation-delay: 0.20s;
+        }
+        .delay-300 {
+            animation-delay: 0.35s;
+        }
+        .delay-400 {
+            animation-delay: 0.50s;
+        }
+
+        /* ─── Scroll Reveal for sections ─── */
+        .section {
+            opacity: 0;
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .section.visible {
+            opacity: 1;
+        }
+
+        /* ─── Content reveal ─── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(48px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .section.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ─── Background image animation ─── */
+        .section-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            opacity: 0;
+            transform: scale(1.08);
+            transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .section.visible .section-bg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* ─── Overlay fade ─── */
+        .section-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.9s ease 0.2s;
+        }
+        .section.visible .section-overlay {
+            opacity: 1;
+        }
+
+        /* ─── Content styles ─── */
+        .section-content {
+            position: relative;
+            z-index: 2;
+        }
+        .section-line {
+            width: 48px;
+            height: 3px;
+            background: #ffffff;
+            border-radius: 4px;
+            margin: 0 auto 1rem;
+        }
+        .section-line-dark {
+            background: #202A36;
+        }
+
+        /* ─── Nav link underline ─── */
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link-mobile {
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .nav-link-mobile:hover {
+            transform: translateX(6px);
+            color: #1a2229;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- HERO SECTION (video, no buttons)       -->
+    <!-- ════════════════════════════════════════ -->
+    <section class="relative h-screen w-full overflow-hidden bg-gray-900">
+
+        <!-- Video Background -->
+        <div class="video-container">
+            <video
+            class="hero-video"
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_091828_e240eb17-6edc-4129-ad9d-98678e3fd238.mp4"
+            autoplay muted loop playsinline preload="metadata"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%230f0f1a'/%3E%3C/svg%3E"
+            ></video>
+            <div class="video-overlay"></div>
+            <div class="fallback-gradient"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-10 flex h-full flex-col">
+
+            <!-- Navigation -->
+            <nav class="w-full px-6 py-5 md:px-8 lg:px-10">
+                <div class="mx-auto max-w-7xl flex items-center justify-between">
+                    <a href="#" class="text-2xl font-semibold tracking-tight text-white drop-shadow-md animate-fade-in">
+                        SkyElite
+                    </a>
+
+                    <!-- Desktop Menu -->
+                    <ul class="hidden items-center gap-8 md:flex animate-fade-in delay-200">
+                        <li><a href="#start" class="nav-link text-sm font-medium text-white/90 transition-colors duration-200 hover:text-white">Бастау</a></li>
+                        <li><a href="#story" class="nav-link text-sm font-medium text-white/90 transition-colors duration-200 hover:text-white">Тарих</a></li>
+                        <li><a href="#rates" class="nav-link text-sm font-medium text-white/90 transition-colors duration-200 hover:text-white">Бағалар</a></li>
+                        <li><a href="#benefits" class="nav-link text-sm font-medium text-white/90 transition-colors duration-200 hover:text-white">Артықшылықтар</a></li>
+                        <li><a href="#faq" class="nav-link text-sm font-medium text-white/90 transition-colors duration-200 hover:text-white">Сұрақтар</a></li>
+                    </ul>
+
+                    <!-- Mobile Hamburger -->
+                    <button id="menuToggle" class="rounded-full p-2 text-white transition-colors hover:bg-white/10 md:hidden animate-fade-in" aria-label="Toggle menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <!-- Mobile Dropdown -->
+                <div id="mobileMenu" class="menu-dropdown absolute left-4 right-4 top-20 z-50 rounded-2xl shadow-2xl md:hidden hidden">
+                    <ul class="flex flex-col divide-y divide-gray-100/60 px-2 py-3">
+                        <li><a href="#start" class="nav-link-mobile block px-4 py-3.5 text-base font-medium text-gray-800 transition-colors hover:text-gray-500">Бастау</a></li>
+                        <li><a href="#story" class="nav-link-mobile block px-4 py-3.5 text-base font-medium text-gray-800 transition-colors hover:text-gray-500">Тарих</a></li>
+                        <li><a href="#rates" class="nav-link-mobile block px-4 py-3.5 text-base font-medium text-gray-800 transition-colors hover:text-gray-500">Бағалар</a></li>
+                        <li><a href="#benefits" class="nav-link-mobile block px-4 py-3.5 text-base font-medium text-gray-800 transition-colors hover:text-gray-500">Артықшылықтар</a></li>
+                        <li><a href="#faq" class="nav-link-mobile block px-4 py-3.5 text-base font-medium text-gray-800 transition-colors hover:text-gray-500">Сұрақтар</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Hero Content – centered with -mt-80 (no buttons) -->
+            <div class="flex flex-1 items-center justify-center -mt-80 px-6">
+                <div class="text-center max-w-4xl">
+
+                    <!-- Label -->
+                    <p class="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-gray-300 md:text-sm animate-fade-up delay-100">
+                        ЖЕКЕ ҰШАҚТАР
+                    </p>
+
+                    <!-- Heading -->
+                    <h1 class="leading-none tracking-[-0.04em]">
+                        <span class="block text-6xl font-normal text-white/60 drop-shadow-sm md:text-7xl lg:text-8xl animate-fade-up delay-200">
+                            Премиум.
+                        </span>
+                        <span class="block text-6xl font-normal text-white drop-shadow-sm md:text-7xl lg:text-8xl heading-overlap animate-fade-up delay-300">
+                            Қолжетімді.
+                        </span>
+                    </h1>
+
+                    <!-- Subtitle -->
+                    <p class="mx-auto mt-4 max-w-2xl text-lg text-white/80 drop-shadow-sm md:text-xl animate-fade-up delay-400">
+                        Сіздің берілгендігіңіз тануға лайық. <br class="hidden sm:block" />
+                        Әр сапар — ерекше күй.
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- Bottom fade -->
+            <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900/60 to-transparent"></div>
+
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SECTION 1 – БАСТАУ (фон – ұшақ)       -->
+    <!-- ════════════════════════════════════════ -->
+    <section id="start" class="section relative min-h-screen flex items-center justify-center px-6 py-20 overflow-hidden">
+        <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1542296332-2e4473faf563?w=1600&q=80');"></div>
+        <div class="section-overlay"></div>
+        <div class="section-content text-center max-w-3xl reveal">
+            <div class="section-line"></div>
+            <h2 class="text-3xl font-semibold text-white md:text-4xl drop-shadow-lg">Бастау</h2>
+            <p class="mt-4 text-lg text-white/90 leading-relaxed drop-shadow-md">
+                Сіздің саяхатыңыз осы жерден басталады. <br />
+                Біз әлемнің түкпір-түкпіріне ұшу мүмкіндігін ұсынамыз.
+            </p>
+            <p class="mt-2 text-white/70 text-sm drop-shadow">
+                Жайлылық, қауіпсіздік және сенімділік — біздің басты құндылықтарымыз.
+            </p>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SECTION 2 – ТАРИХ (фон – аспан)       -->
+    <!-- ════════════════════════════════════════ -->
+    <section id="story" class="section relative min-h-screen flex items-center justify-center px-6 py-20 overflow-hidden">
+        <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=80');"></div>
+        <div class="section-overlay" style="background: rgba(0,0,0,0.50);"></div>
+        <div class="section-content text-center max-w-3xl reveal">
+            <div class="section-line"></div>
+            <h2 class="text-3xl font-semibold text-white md:text-4xl drop-shadow-lg">Тарих</h2>
+            <p class="mt-4 text-lg text-white/90 leading-relaxed drop-shadow-md">
+                Біздің жолымыз — аспандағы еркіндік. <br />
+                2015 жылдан бері мыңдаған жолаушыға қызмет көрсетеміз.
+            </p>
+            <p class="mt-2 text-white/70 text-sm drop-shadow">
+                Әр ұшу — біз үшін жаңа тарих.
+            </p>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SECTION 3 – БАҒАЛАР (фон – люкс салон)-->
+    <!-- ════════════════════════════════════════ -->
+    <section id="rates" class="section relative min-h-screen flex items-center justify-center px-6 py-20 overflow-hidden">
+        <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=1600&q=80');"></div>
+        <div class="section-overlay" style="background: rgba(0,0,0,0.60);"></div>
+        <div class="section-content text-center max-w-3xl reveal">
+            <div class="section-line"></div>
+            <h2 class="text-3xl font-semibold text-white md:text-4xl drop-shadow-lg">Бағалар</h2>
+            <p class="mt-4 text-lg text-white/90 leading-relaxed drop-shadow-md">
+                Әрбір ұшу үшін мөлдір және әділ бағалар. <br />
+                Сізге қолайлы тарифті таңдаңыз.
+            </p>
+            <p class="mt-2 text-white/70 text-sm drop-shadow">
+                Арнайы ұсыныстар мен жеңілдіктер бар.
+            </p>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SECTION 4 – АРТЫҚШЫЛЫҚТАР (фон – ұшақ)-->
+    <!-- ════════════════════════════════════════ -->
+    <section id="benefits" class="section relative min-h-screen flex items-center justify-center px-6 py-20 overflow-hidden">
+        <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=1600&q=80');"></div>
+        <div class="section-overlay" style="background: rgba(0,0,0,0.50);"></div>
+        <div class="section-content text-center max-w-3xl reveal">
+            <div class="section-line"></div>
+            <h2 class="text-3xl font-semibold text-white md:text-4xl drop-shadow-lg">Артықшылықтар</h2>
+            <p class="mt-4 text-lg text-white/90 leading-relaxed drop-shadow-md">
+                Жайлылық, қауіпсіздік және уақыт үнемдеу. <br />
+                Бізбен бірге сіз ең жақсысына лайықсыз.
+            </p>
+            <p class="mt-2 text-white/70 text-sm drop-shadow">
+                VIP қызмет көрсету, жеке экипаж және толық конфиденциалдылық.
+            </p>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SECTION 5 – СҰРАҚТАР (фон – байланыс) -->
+    <!-- ════════════════════════════════════════ -->
+    <section id="faq" class="section relative min-h-screen flex items-center justify-center px-6 py-20 overflow-hidden">
+        <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1556741533-6e6a62bd8b49?w=1600&q=80');"></div>
+        <div class="section-overlay" style="background: rgba(0,0,0,0.55);"></div>
+        <div class="section-content text-center max-w-3xl reveal">
+            <div class="section-line"></div>
+            <h2 class="text-3xl font-semibold text-white md:text-4xl drop-shadow-lg">Сұрақтар</h2>
+            <p class="mt-4 text-lg text-white/90 leading-relaxed drop-shadow-md">
+                Сізді қызықтыратын барлық жауаптар. <br />
+                Біз әрқашан байланыстамыз.
+            </p>
+            <p class="mt-2 text-white/70 text-sm drop-shadow">
+                Бізбен хабарласыңыз — сұрағыңызға тегін жауап береміз.
+            </p>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- FOOTER                                 -->
+    <!-- ════════════════════════════════════════ -->
+    <footer class="bg-gray-900 text-white/60 py-8 text-center text-sm border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <p>© 2026 SkyElite. Барлық құқықтар қорғалған.</p>
+            <p class="mt-1 text-white/40 text-xs">Аспан сізді күтеді.</p>
+        </div>
+    </footer>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCRIPTS                                -->
+    <!-- ════════════════════════════════════════ -->
+    <script>
+        (function() {
+            // ─── Mobile Menu Toggle ───
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            let isOpen = false;
+
+            function toggleMenu() {
+                isOpen = !isOpen;
+                mobileMenu.classList.toggle('hidden', !isOpen);
+                menuToggle.innerHTML = isOpen ?
+                    `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>` :
+                    `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>`;
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+
+            // Close on link click
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => { if (isOpen) toggleMenu(); });
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function(e) {
+                if (isOpen && !mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                    toggleMenu();
+                }
+            });
+
+            // ─── Scroll Reveal (Intersection Observer) ───
+            const sections = document.querySelectorAll('.section');
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.15,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+                sections.forEach(el => observer.observe(el));
+            } else {
+                // Fallback: show all
+                sections.forEach(el => el.classList.add('visible'));
+            }
+
+            // ─── Smooth anchor scroll ───
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
